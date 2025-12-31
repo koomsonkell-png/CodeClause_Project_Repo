@@ -1,0 +1,218 @@
+---
+title: 'Iris Dataset Analysis'
+author: "Kell Koomson"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = NA,
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+  out.width = "95%"
+)
+options(width = 150)
+library(knitr)
+library(psych)
+library(gt)
+library(tidyverse)
+library(gridExtra)
+```
+
+## loading And Inspecting the Iris Dataset
+
+```{r Iris, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+Iris <- datasets::iris
+first <- Iris %>% head(n=3)
+middle <- Iris%>% slice(51:53)
+last_one <- Iris %>% tail(n=3)
+Iris_extracted <- rbind(first,middle,last_one)
+Iris_extracted %>% gt()
+```
+
+
+
+## Descriptive Statistics
+```{r Summary, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+summary(Iris) %>%
+  kable()
+```
+
+
+## Descriptive Statistics By group
+```{r DescribeBy, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+cat("Setosa")
+describeBy(Iris,group = Iris$Species)[[1]] %>%
+  select(c(n,mean,sd,median,min,max,range)) %>%
+  kable()
+cat("Versicolor")
+describeBy(Iris,group = Iris$Species)[[2]] %>%
+  select(c(n,mean,sd,median,min,max,range)) %>%
+  kable()
+cat("Virginica")
+describeBy(Iris,group=Iris$Species)[[3]] %>%
+  select(c(n,mean,sd,median,min,max,range)) %>%
+  kable()
+```
+
+
+
+
+
+## Distributions Of Variables
+
+```{r Histograms, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+pA <- Iris %>%
+  ggplot() +
+  geom_histogram(mapping = aes(x = Iris$Sepal.Length),
+                 bins = 8,colour = "black",
+                 fill = "maroon") +
+  labs(title = "",x= "Sepal Length",y= "Frequency")
+  
+pB <- Iris %>%
+  ggplot() + 
+  geom_histogram(mapping = aes(x = Iris$Sepal.Width),
+                 bins = 12,colour = "black",
+                 fill = "steelblue2") + 
+  labs(title = "",x= "Sepal Width",y= "Frequency")
+
+grid.arrange(pA,pB)
+
+pC <- Iris %>%
+  ggplot() + 
+  geom_histogram(mapping = aes(x = Iris$Petal.Length),
+                 bins = 9,colour = "black",
+                 fill = "green3") + 
+  labs(title = "",x= "Petal Length",y= "Frequency")
+
+pD <- Iris %>%
+  ggplot() + 
+  geom_histogram(mapping = aes(x = Iris$Petal.Width),
+                 bins = 9,colour = "black",
+                 fill = "cyan") +
+  labs(title = "",x= "Petal Width",y= "Frequency")
+
+grid.arrange(pC,pD)
+```
+
+
+
+
+## Distributions of Variables By group
+```{r Boxplot, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+p1 <- Iris %>%
+  ggplot(mapping = aes(x = Iris$Species)) + 
+  geom_boxplot(mapping = aes(y = Iris$Sepal.Length,fill = Iris$Species)) + 
+  geom_point(mapping = aes(y = Iris$Sepal.Length)) + 
+  labs(title = "",x= "Species")
+
+p2 <- Iris %>%
+  ggplot(mapping = aes(x = Iris$Species)) + 
+  geom_boxplot(mapping = aes(y = Iris$Sepal.Width,fill = Iris$Species)) + 
+  geom_point(mapping = aes(y = Iris$Sepal.Width)) +
+  labs(title = "",x= "Species")
+
+
+p3 <- Iris %>%
+  ggplot(mapping = aes(x = Iris$Species)) + 
+  geom_boxplot(mapping = aes(y = Iris$Petal.Length,fill = Iris$Species)) + 
+  geom_point(mapping = aes(y = Iris$Petal.Length)) +
+  labs(title = "",x= "Species")
+
+p4 <- Iris %>%
+  ggplot(mapping = aes(x = Iris$Species)) + 
+  geom_boxplot(mapping = aes(y = Iris$Petal.Width,fill = Iris$Species)) + 
+  geom_point(mapping = aes(y = Iris$Petal.Width))+
+  labs(title = "",x= "Species")
+
+p1
+p2
+p3
+p4
+```
+
+
+
+
+
+
+## Relationship between numerical variables
+```{r sepal length and Width, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+p5 <- Iris %>%
+  ggplot(mapping = aes(Iris$Sepal.Length,Iris$Sepal.Width)) +
+  geom_point()+
+  geom_smooth(method = "lm")+
+  facet_wrap(Iris$Species)
+
+p6 <- Iris %>%
+  ggplot(mapping = aes(Iris$Sepal.Length,Iris$Sepal.Width))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+p5
+p6
+```
+
+
+```{r Petal length and Width, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+p7 <- Iris %>%
+  ggplot(mapping = aes(Iris$Petal.Length,Iris$Petal.Width)) +
+  geom_point()+
+  geom_smooth(method = "lm")+
+  facet_wrap(Iris$Species)
+
+p8 <- Iris %>%
+  ggplot(mapping = aes(Iris$Petal.Length,Iris$Petal.Width))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+p7
+p8
+```
+
+
+```{r Sepal and petal length, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+p9 <- Iris %>%
+  ggplot(mapping = aes(Iris$Sepal.Length,Iris$Petal.Length)) +
+  geom_point()+
+  geom_smooth(method = "lm")+
+  facet_wrap(Iris$Species)
+
+p10 <- Iris %>%
+  ggplot(mapping = aes(Iris$Sepal.Length,Iris$Petal.Length))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+p9
+p10
+```
+
+
+```{r Sepal and petal width, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+p11 <- Iris %>%
+  ggplot(mapping = aes(Iris$Sepal.Width,Iris$Petal.Width)) +
+  geom_point()+
+  geom_smooth(method = "lm")+
+  facet_wrap(Iris$Species)
+
+p12 <- Iris %>%
+  ggplot(mapping = aes(Iris$Sepal.Width,Iris$Petal.Width))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+p11
+p12
+```
+
+
+
+
+
+
+
