@@ -1,1 +1,1 @@
-This folder will old R scripts
+This folder will hold R scripts
